@@ -11,6 +11,7 @@ interface DataSourceState {
   error: string | null
 
   connect: (config: DataSourceConfig) => void
+  connectAdapter: (adapter: DataSourceAdapter) => void
   login: (username: string, password: string) => Promise<void>
   refreshSnapshot: () => Promise<void>
   disconnect: () => void
@@ -25,6 +26,9 @@ export const useDataSourceStore = create<DataSourceState>((set, get) => ({
 
   connect: (config) => {
     const adapter = createDataSource(config)
+    set({ adapter, isAuthenticated: false, snapshot: null, error: null })
+  },
+   connectAdapter: (adapter) => {
     set({ adapter, isAuthenticated: false, snapshot: null, error: null })
   },
 

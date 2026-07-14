@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useDataSourceStore } from '@/store/dataSourceStore'
+import { MockAdapter } from '@/adapters/MockAdapter'
 
 export function Login() {
   const [baseUrl, setBaseUrl] = useState('http://localhost:5000')
@@ -7,6 +8,7 @@ export function Login() {
   const [password, setPassword] = useState('')
 
   const connect = useDataSourceStore((s) => s.connect)
+  const connectAdapter = useDataSourceStore((s) => s.connectAdapter)
   const login = useDataSourceStore((s) => s.login)
   const isLoading = useDataSourceStore((s) => s.isLoading)
   const error = useDataSourceStore((s) => s.error)
@@ -15,6 +17,11 @@ export function Login() {
     e.preventDefault()
     connect({ kind: 'homecore', baseUrl })
     await login(username, password)
+  }
+
+  async function handleMockLogin() {
+    connectAdapter(new MockAdapter())
+    await login('mock', 'mock')
   }
 
   return (
@@ -39,6 +46,14 @@ export function Login() {
           className="rounded-md bg-accent hover:bg-accent-dim transition-colors py-2 text-sm font-semibold text-white disabled:opacity-50"
         >
           {isLoading ? 'Conectando...' : 'Conectar'}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleMockLogin}
+          className="text-xs text-slate-500 hover:text-slate-300 transition-colors underline"
+        >
+          Usar datos de prueba (sin backend real)
         </button>
       </form>
     </div>
