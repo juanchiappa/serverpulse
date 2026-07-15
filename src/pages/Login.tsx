@@ -1,10 +1,22 @@
 import { useState, type FormEvent } from 'react'
 import { useDataSourceStore } from '@/store/dataSourceStore'
 import { MockAdapter } from '@/adapters/MockAdapter'
+import type { DataSourceKind } from '@/adapters/DataSourceAdapter'
+import { loadDataSourceConfig, saveDataSourceConfig } from '@/lib/dataSourceConfigStorage'
+
+const persisted = loadDataSourceConfig()
+
+const KIND_LABELS: Record<Exclude<DataSourceKind, 'docker-socket'>, string> = {
+  homecore: 'HomeCore API',
+  prometheus: 'Prometheus',
+}
 
 export function Login() {
-  const [baseUrl, setBaseUrl] = useState('http://localhost:5000')
-  const [username, setUsername] = useState('')
+  const [kind, setKind] = useState<Exclude<DataSourceKind, 'docker-socket'>>(
+    persisted?.kind === 'prometheus' ? 'prometheus' : 'homecore',
+  )
+  const [baseUrl, setBaseUrl] = useState(persisted?.baseUrl ?? 'http://localhost:5000')
+  const [username, setUsername] = useState(persisted?.username ?? '')
   const [password, setPassword] = useState('')
 
   const connect = useDataSourceStore((s) => s.connect)
@@ -15,8 +27,9 @@ export function Login() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    connect({ kind: 'homecore', baseUrl })
+    connect({ kind, baseUrl, username })
     await login(username, password)
+    saveDataSourceConfig({ kind, baseUrl, username })
   }
 
   async function handleMockLogin() {
@@ -34,7 +47,22 @@ export function Login() {
           Server<span className="text-accent-glow">Pulse</span>
         </h1>
 
-        <Field label="URL de HomeCore API" value={baseUrl} onChange={setBaseUrl} />
+        <label className="flex flex-col gap-1 text-xs text-slate-400">
+          Fuente de datos
+          <select
+            value={kind}
+            onChange={(e) => setKind(e.target.value as typeof kind)}
+            className="rounded-md bg-base-800 border border-base-700 px-3 py-2 text-sm text-slate-100 outline-none focus:border-accent"
+          >
+            {Object.entries(KIND_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <Field label="URL del backend" value={baseUrl} onChange={setBaseUrl} />
         <Field label="Usuario" value={username} onChange={setUsername} />
         <Field label="Contraseña" value={password} onChange={setPassword} type="password" />
 

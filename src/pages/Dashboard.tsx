@@ -1,14 +1,17 @@
+import { useState } from 'react'
 import { useDataSourceStore } from '@/store/dataSourceStore'
 import { usePolling } from '@/hooks/usePolling'
 import { ContainerCard } from '@/components/ContainerCard'
 import { MetricGauge } from '@/components/MetricGauge'
+import { SettingsPanel } from '@/components/SettingsPanel'
 
 export function Dashboard() {
   const snapshot = useDataSourceStore((s) => s.snapshot)
   const isLoading = useDataSourceStore((s) => s.isLoading)
   const error = useDataSourceStore((s) => s.error)
   const refreshSnapshot = useDataSourceStore((s) => s.refreshSnapshot)
-  const disconnect = useDataSourceStore((s) => s.disconnect)
+
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   usePolling(refreshSnapshot, 10_000)
 
@@ -24,10 +27,12 @@ export function Dashboard() {
           </h1>
         </div>
         <button
-          onClick={disconnect}
-          className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+          onClick={() => setSettingsOpen(true)}
+          className="text-slate-500 hover:text-slate-300 transition-colors text-lg leading-none"
+          aria-label="Configuración"
+          title="Configuración"
         >
-          Desconectar
+          ⚙
         </button>
       </header>
 
@@ -58,6 +63,8 @@ export function Dashboard() {
           </p>
         )}
       </main>
+
+      {settingsOpen && <SettingsPanel onClose={() => setSettingsOpen(false)} />}
     </div>
   )
 }
