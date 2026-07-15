@@ -1,17 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  /* Fondo "centro de control" */
   --color-base-950: #0d0d0d;
   --color-base-900: #131313;
   --color-base-800: #1a1a1a;
   --color-base-700: #232323;
 
-  /* Accent principal (azul eléctrico) */
   --color-accent: #2f6bff;
   --color-accent-glow: #5b8bff;
 
-  /* Estados de contenedores */
   --color-status-running: #22e584;
   --color-status-warning: #f5c518;
   --color-status-error: #ff4d4f;

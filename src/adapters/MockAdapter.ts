@@ -1,21 +1,11 @@
 import type { DataSourceAdapter, ConnectionTestResult } from '@/adapters/DataSourceAdapter'
 import type { HomelabSnapshot, ContainerInfo, ServiceStatus } from '@/types'
 
-/**
- * Adapter de desarrollo/testing. Devuelve datos inventados que varían un
- * poco en cada llamada, para simular el efecto de un homelab real sin
- * depender de tener Docker, HomeCore API, ni un homelab físico prendido.
- *
- * NO se usa en producción — no aparece en el switch de createDataSource(),
- * ni en el SettingsPanel que arma la Fase 4. Es solo para poder seguir
- * desarrollando el Dashboard de forma aislada.
- */
 export class MockAdapter implements DataSourceAdapter {
   readonly kind = 'homecore' as const // reusa el tipo por comodidad, no aparece en la UI real
   readonly displayName = 'Mock (datos de prueba)'
 
   async login(_username: string, _password: string): Promise<void> {
-    // No valida nada: cualquier user/pass "loguea" bien.
     await delay(300)
   }
 

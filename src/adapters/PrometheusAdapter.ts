@@ -47,8 +47,6 @@ export class PrometheusAdapter implements DataSourceAdapter {
     this.timeoutMs = config.timeoutMs ?? 5000
   }
 
-  // Prometheus no tiene login: cualquier config con URL válida "autentica" sola.
-  // El store la va a tratar como autenticada apenas se conecta.
 
   async fetchSnapshot(): Promise<HomelabSnapshot> {
     const [hostCpu, hostMemory, hostDisk, containerCpu, containerMemory, targetsUp] =
@@ -72,8 +70,6 @@ export class PrometheusAdapter implements DataSourceAdapter {
   async testConnection(): Promise<ConnectionTestResult> {
     const start = performance.now()
     try {
-      // "vector(1)" es una consulta constante: sirve para probar que
-      // Prometheus responde, sin depender de que haya exporters configurados.
       await this.query('vector(1)')
       return {
         ok: true,
@@ -88,7 +84,6 @@ export class PrometheusAdapter implements DataSourceAdapter {
     }
   }
 
-  /** Ejecuta una query PromQL contra /api/v1/query y devuelve los resultados "crudos" */
   private async query(promql: string): Promise<PrometheusVectorResult[]> {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs)
@@ -119,7 +114,6 @@ export class PrometheusAdapter implements DataSourceAdapter {
   }
 }
 
-// --- Builders: resultado de PromQL -> tipos de dominio de ServerPulse -----
 
 function scalarValue(result: PrometheusVectorResult[]): number | undefined {
   const raw = result[0]?.value[1]
@@ -155,8 +149,6 @@ function buildContainers(
     if (name) memoryByName.set(name, parseFloat(r.value[1]))
   }
 
-  // La lista de contenedores sale de la query de CPU: si cAdvisor está
-  // reportando CPU de un contenedor, es porque está corriendo ahora mismo.
   return cpuResults
     .filter((r) => r.metric.name)
     .map((r) => {

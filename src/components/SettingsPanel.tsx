@@ -11,7 +11,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const [confirming, setConfirming] = useState(false)
 
   function handleChangeSource() {
-    disconnect() // Esto dispara la vuelta al Login (isAuthenticated pasa a false)
+    disconnect() 
     onClose()
   }
 

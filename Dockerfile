@@ -1,18 +1,13 @@
-# ---- Etapa 1: build ----
 FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Copiamos solo los manifiestos primero, para aprovechar la cache de Docker:
-# si no cambiaron las dependencias, no hace falta correr npm install de nuevo
-# en el próximo build.
 COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
 RUN npm run build
 
-# ---- Etapa 2: servir con nginx ----
 FROM nginx:1.27-alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html

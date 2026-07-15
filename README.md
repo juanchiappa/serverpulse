@@ -62,13 +62,23 @@ Levanta el servidor de desarrollo de Vite en `http://localhost:5173`, con hot-re
 
 ## Arquitectura de adaptadores
 src/
+
 ├── adapters/
+
 │   ├── DataSourceAdapter.ts    # Interfaz común que implementa cada adapter
+
 │   ├── HomeCoreAdapter.ts      # Login JWT + REST contra HomeCore API
+
 │   ├── PrometheusAdapter.ts    # Queries PromQL contra Prometheus
+
 │   ├── MockAdapter.ts          # Datos simulados, solo para desarrollo/testing
+
 │   └── createDataSource.ts     # Factory: arma el adapter correcto según config
+
 ├── components/                 # ContainerCard, MetricGauge, SettingsPanel
+
 ├── pages/                      # Login, Dashboard
+
 ├── store/                      # Estado global (Zustand)
+
 └── types/                      # Tipos de dominio

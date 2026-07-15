@@ -39,7 +39,7 @@ export const useDataSourceStore = create<DataSourceState>((set, get) => ({
       return
     }
     if (!('login' in adapter) || typeof adapter.login !== 'function') {
-      set({ isAuthenticated: true }) // no requiere login, lo damos por autenticado
+      set({ isAuthenticated: true })
       return
     }
 

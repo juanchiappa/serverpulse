@@ -1,8 +1,3 @@
-// Queries de PromQL usadas por PrometheusAdapter.
-// Asumen node_exporter (métricas de host) y cAdvisor (métricas por
-// contenedor) — son las convenciones más comunes en setups de homelab,
-// pero si tu instalación usa otros nombres de métrica, este es el único
-// archivo que hay que tocar.
 
 export const QUERIES = {
   hostCpuPercent: '100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100)',
