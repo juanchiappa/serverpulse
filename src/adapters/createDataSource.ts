@@ -1,5 +1,6 @@
 import type { DataSourceAdapter, DataSourceConfig } from '@/adapters/DataSourceAdapter'
 import { HomeCoreAdapter, type HomeCoreAdapterConfig } from '@/adapters/HomeCoreAdapter'
+import { PrometheusAdapter, type PrometheusAdapterConfig } from '@/adapters/PrometheusAdapter'
 import { DataSourceError } from '@/types'
 
 export function createDataSource(config: DataSourceConfig): DataSourceAdapter {
@@ -7,7 +8,7 @@ export function createDataSource(config: DataSourceConfig): DataSourceAdapter {
     case 'homecore':
       return new HomeCoreAdapter(config as HomeCoreAdapterConfig)
     case 'prometheus':
-      throw new DataSourceError('PrometheusAdapter todavía no está implementado (Fase 3).')
+      return new PrometheusAdapter(config as PrometheusAdapterConfig)
     case 'docker-socket':
       throw new DataSourceError('DockerSocketAdapter todavía no está implementado (Fase 3).')
     default:
