@@ -48,7 +48,7 @@ export function Login() {
         </h1>
 
         <label className="flex flex-col gap-1 text-xs text-slate-400">
-          Fuente de datos
+          Data source
           <select
             value={kind}
             onChange={(e) => setKind(e.target.value as typeof kind)}
@@ -62,9 +62,9 @@ export function Login() {
           </select>
         </label>
 
-        <Field label="URL del backend" value={baseUrl} onChange={setBaseUrl} />
-        <Field label="Usuario" value={username} onChange={setUsername} />
-        <Field label="Contraseña" value={password} onChange={setPassword} type="password" />
+        <Field label="Backend URL" value={baseUrl} onChange={setBaseUrl} />
+        <Field label="Username" value={username} onChange={setUsername} />
+        <Field label="Password" value={password} onChange={setPassword} type="password" />
 
         {error && <p className="text-xs text-status-error">{error}</p>}
 
@@ -81,7 +81,7 @@ export function Login() {
           onClick={handleMockLogin}
           className="text-xs text-slate-500 hover:text-slate-300 transition-colors underline"
         >
-          Usar datos de prueba (sin backend real)
+          Use demo data (no real backend)
         </button>
       </form>
     </div>

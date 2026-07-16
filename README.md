@@ -1,84 +1,79 @@
 # ServerPulse
 
-Dashboard web standalone para monitorear homelabs Docker: contenedores, métricas del sistema y estado de servicios — sin depender de un backend específico.
+Standalone web dashboard for monitoring Docker homelabs: containers, system metrics, and service status — without depending on any specific backend.
 
-![Dashboard con datos de prueba](docs/screenshots/dashboard-mock.png)
+It connects through **configurable adapters**: [HomeCore API](https://github.com/juanchiappa/homecore-api), Prometheus, or (coming soon) directly through the Docker socket. You choose the source from the UI itself — no code changes or environment variables required.
 
-## Qué es esto
+![ServerPulse dashboard with mock data](docs/screenshots/dashboard-mock.png)
 
-ServerPulse es un SPA (React + TypeScript + Vite) que se conecta a tu homelab a través de **adaptadores configurables**. El dashboard no sabe ni le importa de dónde vienen los datos — solo conoce una interfaz común (`DataSourceAdapter`), y cada adapter traduce el formato de su backend a los tipos que ServerPulse entiende.
+## Stack
 
-## Los 3 modos de uso
+- React 18 + TypeScript + Vite
+- Tailwind CSS v4
+- Recharts (metric gauges)
+- Zustand (global state)
 
-### 1. Con HomeCore API (stack completo recomendado)
+## The 3 usage modes
 
-[HomeCore API](https://github.com/juanchiappa/homecore-api) es el backend de referencia: una REST API en ASP.NET Core que expone contenedores, servicios y métricas del host vía Docker Engine API.
+ServerPulse is a pure SPA: no matter which backend you pick, everything runs in your browser and the config is stored locally.
 
-1. Levantá HomeCore API (ver su propio README para la config de `.env` y `docker compose up`).
-2. En ServerPulse, elegí "HomeCore API" como fuente de datos, ingresá la URL (ej: `http://localhost:5000`) y las credenciales de admin configuradas en HomeCore.
+### 1. With HomeCore API (recommended full stack)
 
-### 2. Con Prometheus
+If you have [HomeCore API](https://github.com/juanchiappa/homecore-api) running in your homelab, select "HomeCore API" on the login screen, enter its URL (e.g. `http://your-server:5000`), and your credentials.
 
-Si ya tenés una stack de observabilidad con Prometheus (+ `node_exporter` para métricas de host, y `cAdvisor` para métricas por contenedor), ServerPulse puede consumirlas directo.
+### 2. With Prometheus
 
-1. En ServerPulse, elegí "Prometheus" como fuente de datos e ingresá la URL de tu instancia (ej: `http://localhost:9090`).
-2. No requiere login — Prometheus no tiene autenticación propia por default.
+If you already run Prometheus (with `node_exporter` and/or `cAdvisor` set up), select "Prometheus" on the login screen and point it to its URL — no username/password required.
 
-> Nota: Prometheus/cAdvisor solo reportan métricas de contenedores que están corriendo — a diferencia de HomeCore API, no vas a ver contenedores detenidos en la lista.
+### 3. Standalone / demo mode
 
-### 3. Datos de prueba (sin backend real)
+With no backend running, click **"Use demo data"** on the login screen to explore the dashboard with simulated data. Useful for evaluating the project or for development.
 
-Para explorar el dashboard sin tener ningún backend levantado, usá el botón **"Usar datos de prueba"** en la pantalla de login. Genera contenedores y métricas simuladas que cambian en cada actualización — útil para desarrollo, demos, o simplemente para ver cómo se ve la interfaz.
+![ServerPulse login screen](docs/screenshots/login-screen.png)
 
-## Stack técnico
+## Getting started
 
-| Componente | Tecnología |
-|---|---|
-| Framework | React 18 + TypeScript |
-| Build | Vite |
-| Estilos | Tailwind CSS v4 |
-| Gráficos | Recharts |
-| Estado | Zustand |
-| Deploy | Docker + nginx |
-
-## Levantar el proyecto
-
-### Con Docker (recomendado)
+### With Docker (recommended)
 
 ```bash
 docker compose up --build
 ```
 
-Esto levanta ServerPulse en `http://localhost:8080`. Requiere Docker con soporte de virtualización habilitado en el sistema.
+This starts ServerPulse on `http://localhost:8080`.
 
-### En modo desarrollo (sin Docker)
+### In development mode
 
 ```bash
 npm install
 npm run dev
 ```
 
-Levanta el servidor de desarrollo de Vite en `http://localhost:5173`, con hot-reload.
+Starts the Vite dev server on `http://localhost:5173` with hot-reload.
 
-## Arquitectura de adaptadores
-src/
+## Adapter architecture
 
-├── adapters/
+The whole project is written against a single interface, `DataSourceAdapter`:
 
-│   ├── DataSourceAdapter.ts    # Interfaz común que implementa cada adapter
+```typescript
+interface DataSourceAdapter {
+  readonly kind: DataSourceKind
+  readonly displayName: string
+  fetchSnapshot(): Promise<HomelabSnapshot>
+  testConnection(): Promise<ConnectionTestResult>
+}
+```
 
-│   ├── HomeCoreAdapter.ts      # Login JWT + REST contra HomeCore API
+Neither the Dashboard, nor the `ContainerCard`, nor the store, know or care whether the data comes from HomeCore, Prometheus, or a mock — each adapter translates its backend's native format into the same domain types (`ContainerInfo`, `SystemMetric`, `ServiceStatus`). Adding a new backend (next up: direct Docker socket) means writing one more adapter, without touching the rest of the app.
 
-│   ├── PrometheusAdapter.ts    # Queries PromQL contra Prometheus
+## Roadmap
 
-│   ├── MockAdapter.ts          # Datos simulados, solo para desarrollo/testing
+- [x] Project setup and adapter layer
+- [x] Functional dashboard with real-time polling
+- [x] Second adapter (Prometheus) — validated that the system generalizes
+- [x] Settings panel to pick the data source from the UI
+- [x] Docker deployment
+- [ ] `DockerSocketAdapter` (requires exposing the Docker API over TCP — needs a secure approach)
 
-│   └── createDataSource.ts     # Factory: arma el adapter correcto según config
+## License
 
-├── components/                 # ContainerCard, MetricGauge, SettingsPanel
-
-├── pages/                      # Login, Dashboard
-
-├── store/                      # Estado global (Zustand)
-
-└── types/                      # Tipos de dominio
+MIT
